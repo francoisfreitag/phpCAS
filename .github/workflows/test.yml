@@ -1,0 +1,38 @@
+name: Test
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - '5.4'
+          - '5.5'
+          - '5.6'
+          - '7.0'
+          - '7.1'
+          - '7.2'
+          - '7.3'
+          - '7.4'
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer
+      - name: Run PHPUnit
+        uses: php-actions/phpunit
+        with:
+          php_version: "${{ matrix.php-version }}"
+          php_extensions: [xdebug]
+          args: --verbose --coverage-clover=coverage.xml
+        env:
+          XDEBUG_MODE: coverage
+      - name: Report coverage
+        uses: codecov/codecov-action
+        with:
+          files: coverage.xml
